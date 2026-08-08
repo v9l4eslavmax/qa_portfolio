@@ -2,6 +2,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+from pages.utils import robust_click
+
 
 class InventoryPage:
     URL = "https://www.saucedemo.com/inventory.html"
@@ -14,7 +16,7 @@ class InventoryPage:
 
     def __init__(self, driver):
         self.driver = driver
-        self.wait = WebDriverWait(driver, 10)
+        self.wait = WebDriverWait(driver, 15)
 
     def is_loaded(self) -> bool:
         self.wait.until(EC.url_to_be(self.URL))
@@ -27,7 +29,7 @@ class InventoryPage:
             if item_name in item.text:
                 button = item.find_element(By.TAG_NAME, "button")
                 self.wait.until(EC.element_to_be_clickable(button))
-                button.click()
+                robust_click(self.driver, button)
                 # ждём, пока кнопка реально сменится на "Remove" —
                 # подтверждение, что клик подействовал, а не просто прошёл мимо
                 self.wait.until(
@@ -44,7 +46,8 @@ class InventoryPage:
 
     def open_cart(self):
         cart_link = self.wait.until(EC.element_to_be_clickable(self.CART_LINK))
-        cart_link.click()
+        robust_click(self.driver, cart_link)
+        self.wait.until(EC.url_contains("cart.html"))
 
     def sort_by(self, option_label: str):
         dropdown_element = self.wait.until(EC.presence_of_element_located(self.SORT_DROPDOWN))

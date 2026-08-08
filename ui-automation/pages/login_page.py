@@ -2,6 +2,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+from pages.utils import robust_click
+
 
 class LoginPage:
     URL = "https://www.saucedemo.com/"
@@ -13,7 +15,7 @@ class LoginPage:
 
     def __init__(self, driver):
         self.driver = driver
-        self.wait = WebDriverWait(driver, 10)
+        self.wait = WebDriverWait(driver, 15)
 
     def open(self):
         self.driver.get(self.URL)
@@ -22,7 +24,8 @@ class LoginPage:
     def login(self, username: str, password: str):
         self.driver.find_element(*self.USERNAME_INPUT).send_keys(username)
         self.driver.find_element(*self.PASSWORD_INPUT).send_keys(password)
-        self.driver.find_element(*self.LOGIN_BUTTON).click()
+        login_button = self.driver.find_element(*self.LOGIN_BUTTON)
+        robust_click(self.driver, login_button)
 
     def get_error_text(self) -> str:
         return self.wait.until(EC.visibility_of_element_located(self.ERROR_MESSAGE)).text
