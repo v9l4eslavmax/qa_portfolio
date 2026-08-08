@@ -16,10 +16,10 @@ SCREENSHOTS_DIR = "screenshots"
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--headless",
+        "--headed",
         action="store_true",
-        default=True,
-        help="Запускать браузер в headless-режиме (по умолчанию включено)",
+        default=False,
+        help="Запустить браузер в обычном (не headless) режиме — видимое окно, для отладки",
     )
 
 
@@ -36,7 +36,7 @@ def pytest_runtest_makereport(item, call):
 def driver(request):
     """Создаёт и возвращает WebDriver для каждого теста, закрывает после."""
     options = Options()
-    if request.config.getoption("--headless"):
+    if not request.config.getoption("--headed"):
         options.add_argument("--headless=new")
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--no-sandbox")

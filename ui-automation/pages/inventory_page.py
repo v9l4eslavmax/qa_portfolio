@@ -3,6 +3,7 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from pages.utils import robust_click, wait_for_page_ready
+import time
 
 
 class InventoryPage:
@@ -36,6 +37,7 @@ class InventoryPage:
                 self.wait.until(
                     lambda d: "Remove" in item.find_element(By.TAG_NAME, "button").text
                 )
+                time.sleep(0.3)  # даём странице "устояться" перед следующим действием
                 return
         raise ValueError(f"Товар '{item_name}' не найден в каталоге")
 
