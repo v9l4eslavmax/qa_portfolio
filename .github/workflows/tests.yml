@@ -62,3 +62,11 @@ jobs:
         with:
           name: ui-test-report
           path: ui-automation/report.html
+
+      - name: Upload failure screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-failure-screenshots
+          path: ui-automation/screenshots/
+          if-no-files-found: ignore
