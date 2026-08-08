@@ -42,28 +42,8 @@ def driver(request):
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    # Снижаем "отпечаток" автоматизации — некоторые сайты с anti-bot защитой
-    # (Cloudflare, DataDome и т.п.) распознают headless Selenium по этим
-    # признакам и могут тихо блокировать часть действий без ошибки на
-    # стороне драйвера.
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    options.add_experimental_option("useAutomationExtension", False)
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-    )
-
     service = Service(ChromeDriverManager().install())
     drv = webdriver.Chrome(service=service, options=options)
-    drv.execute_cdp_cmd(
-        "Page.addScriptToEvaluateOnNewDocument",
-        {
-            "source": """
-                Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-            """
-        },
-    )
     drv.implicitly_wait(5)
 
     yield drv

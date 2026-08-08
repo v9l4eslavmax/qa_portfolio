@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from pages.utils import robust_click
+from pages.utils import robust_click, wait_for_page_ready
 
 
 class InventoryPage:
@@ -20,6 +20,7 @@ class InventoryPage:
 
     def is_loaded(self) -> bool:
         self.wait.until(EC.url_to_be(self.URL))
+        wait_for_page_ready(self.driver)
         return self.driver.current_url == self.URL
 
     def add_item_to_cart_by_name(self, item_name: str):
@@ -48,6 +49,7 @@ class InventoryPage:
         cart_link = self.wait.until(EC.element_to_be_clickable(self.CART_LINK))
         robust_click(self.driver, cart_link)
         self.wait.until(EC.url_contains("cart.html"))
+        wait_for_page_ready(self.driver)
 
     def sort_by(self, option_label: str):
         dropdown_element = self.wait.until(EC.presence_of_element_located(self.SORT_DROPDOWN))

@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from pages.utils import robust_click
+from pages.utils import robust_click, wait_for_page_ready
 
 
 class LoginPage:
@@ -20,6 +20,7 @@ class LoginPage:
     def open(self):
         self.driver.get(self.URL)
         self.wait.until(EC.presence_of_element_located(self.USERNAME_INPUT))
+        wait_for_page_ready(self.driver)
 
     def login(self, username: str, password: str):
         self.driver.find_element(*self.USERNAME_INPUT).send_keys(username)

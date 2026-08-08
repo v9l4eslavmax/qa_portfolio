@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from pages.utils import robust_click
+from pages.utils import robust_click, wait_for_page_ready
 
 
 class CartPage:
@@ -33,6 +33,7 @@ class CartPage:
         robust_click(self.driver, button)
         # дожидаемся реальной навигации на страницу checkout-step-one
         self.wait.until(EC.url_contains("checkout-step-one"))
+        wait_for_page_ready(self.driver)
 
 
 class CheckoutStepOnePage:
