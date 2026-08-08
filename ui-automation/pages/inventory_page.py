@@ -17,13 +17,22 @@ class InventoryPage:
         self.wait = WebDriverWait(driver, 10)
 
     def is_loaded(self) -> bool:
+        self.wait.until(EC.url_to_be(self.URL))
         return self.driver.current_url == self.URL
 
     def add_item_to_cart_by_name(self, item_name: str):
+        self.wait.until(EC.presence_of_element_located(self.INVENTORY_ITEMS))
         items = self.driver.find_elements(*self.INVENTORY_ITEMS)
         for item in items:
             if item_name in item.text:
-                item.find_element(By.TAG_NAME, "button").click()
+                button = item.find_element(By.TAG_NAME, "button")
+                self.wait.until(EC.element_to_be_clickable(button))
+                button.click()
+                # ждём, пока кнопка реально сменится на "Remove" —
+                # подтверждение, что клик подействовал, а не просто прошёл мимо
+                self.wait.until(
+                    lambda d: "Remove" in item.find_element(By.TAG_NAME, "button").text
+                )
                 return
         raise ValueError(f"Товар '{item_name}' не найден в каталоге")
 
@@ -34,10 +43,12 @@ class InventoryPage:
         return int(badges[0].text)
 
     def open_cart(self):
-        self.driver.find_element(*self.CART_LINK).click()
+        cart_link = self.wait.until(EC.element_to_be_clickable(self.CART_LINK))
+        cart_link.click()
 
     def sort_by(self, option_label: str):
-        dropdown = Select(self.driver.find_element(*self.SORT_DROPDOWN))
+        dropdown_element = self.wait.until(EC.presence_of_element_located(self.SORT_DROPDOWN))
+        dropdown = Select(dropdown_element)
         dropdown.select_by_visible_text(option_label)
 
     def get_prices(self) -> list[float]:

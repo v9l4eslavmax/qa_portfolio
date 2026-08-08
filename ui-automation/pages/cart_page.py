@@ -1,4 +1,6 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class CartPage:
@@ -7,6 +9,7 @@ class CartPage:
 
     def __init__(self, driver):
         self.driver = driver
+        self.wait = WebDriverWait(driver, 10)
 
     def get_items_count(self) -> int:
         return len(self.driver.find_elements(*self.CART_ITEMS))
@@ -15,12 +18,19 @@ class CartPage:
         items = self.driver.find_elements(*self.CART_ITEMS)
         for item in items:
             if item_name in item.text:
-                item.find_element(By.TAG_NAME, "button").click()
+                button = item.find_element(By.TAG_NAME, "button")
+                self.wait.until(EC.element_to_be_clickable(button))
+                button.click()
+                # ждём, пока элемент реально исчезнет из DOM корзины
+                self.wait.until(EC.staleness_of(item))
                 return
         raise ValueError(f"Товар '{item_name}' не найден в корзине")
 
     def go_to_checkout(self):
-        self.driver.find_element(*self.CHECKOUT_BUTTON).click()
+        button = self.wait.until(EC.element_to_be_clickable(self.CHECKOUT_BUTTON))
+        button.click()
+        # дожидаемся реальной навигации на страницу checkout-step-one
+        self.wait.until(EC.url_contains("checkout-step-one"))
 
 
 class CheckoutStepOnePage:
@@ -32,15 +42,17 @@ class CheckoutStepOnePage:
 
     def __init__(self, driver):
         self.driver = driver
+        self.wait = WebDriverWait(driver, 10)
 
     def fill_info(self, first_name: str, last_name: str, postal_code: str):
-        self.driver.find_element(*self.FIRST_NAME_INPUT).send_keys(first_name)
+        first_name_field = self.wait.until(EC.visibility_of_element_located(self.FIRST_NAME_INPUT))
+        first_name_field.send_keys(first_name)
         self.driver.find_element(*self.LAST_NAME_INPUT).send_keys(last_name)
         self.driver.find_element(*self.POSTAL_CODE_INPUT).send_keys(postal_code)
         self.driver.find_element(*self.CONTINUE_BUTTON).click()
 
     def get_error_text(self) -> str:
-        return self.driver.find_element(*self.ERROR_MESSAGE).text
+        return self.wait.until(EC.visibility_of_element_located(self.ERROR_MESSAGE)).text
 
 
 class CheckoutStepTwoPage:
@@ -49,9 +61,11 @@ class CheckoutStepTwoPage:
 
     def __init__(self, driver):
         self.driver = driver
+        self.wait = WebDriverWait(driver, 10)
 
     def finish(self):
-        self.driver.find_element(*self.FINISH_BUTTON).click()
+        button = self.wait.until(EC.element_to_be_clickable(self.FINISH_BUTTON))
+        button.click()
 
     def get_total_text(self) -> str:
         return self.driver.find_element(*self.TOTAL_LABEL).text
@@ -62,6 +76,7 @@ class CheckoutCompletePage:
 
     def __init__(self, driver):
         self.driver = driver
+        self.wait = WebDriverWait(driver, 10)
 
     def get_confirmation_text(self) -> str:
-        return self.driver.find_element(*self.COMPLETE_HEADER).text
+        return self.wait.until(EC.visibility_of_element_located(self.COMPLETE_HEADER)).text
