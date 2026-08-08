@@ -24,6 +24,8 @@ jobs:
 
       - name: Run API tests
         working-directory: ./api-tests
+        env:
+          REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
         run: pytest --html=report.html --self-contained-html
 
       - name: Upload API test report
